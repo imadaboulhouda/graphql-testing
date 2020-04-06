@@ -1,12 +1,13 @@
 const app = require('express')();
 const gqlexpress = require('express-graphql');
-
+const axios = require('axios');
 const {
     GraphQLSchema,
     GraphQLObjectType,
     GraphQLString,
     GraphQLInt,
     GraphQLNonNull,
+    GraphQLBoolean,
 GraphQLList,
 }  = require('graphql');
 
@@ -40,6 +41,30 @@ const BookType = new GraphQLObjectType({
     }),
 });
 
+const GithubUserType = new GraphQLObjectType({
+    name:'Github',
+    description:'Github Graphql',
+    fields:()=>({
+        "login": {type:GraphQLString},
+    "id": {type:GraphQLInt},
+    "node_id": {type:GraphQLString},
+    "avatar_url":  {type:GraphQLString},
+    "gravatar_id":  {type:GraphQLString},
+    "url":  {type:GraphQLString},
+    "html_url":  {type:GraphQLString},
+    "followers_url":  {type:GraphQLString},
+    "following_url":  {type:GraphQLString},
+    "gists_url":  {type:GraphQLString},
+    "starred_url":  {type:GraphQLString},
+    "subscriptions_url":  {type:GraphQLString},
+    "organizations_url":  {type:GraphQLString},
+    "repos_url":  {type:GraphQLString},
+    "events_url":  {type:GraphQLString},
+    "received_events_url":  {type:GraphQLString},
+    "type":  {type:GraphQLString},
+    "site_admin":  {type:GraphQLBoolean}
+    }),
+})
 const AuthorType = new GraphQLObjectType({
     name:'Author',
     description:'List of authors',
@@ -83,6 +108,13 @@ const RootQuery = new GraphQLObjectType({
             type:new GraphQLList(AuthorType),
             description:'LIst of Authors',
             resolve:()=>authors
+        },
+        githubs:{
+            type:new GraphQLList(GithubUserType),
+            description:'Github list',
+            resolve:()=>{
+                return axios.get('https://api.github.com/users').then(e=>e.data);
+            }
         }
     })
 });
